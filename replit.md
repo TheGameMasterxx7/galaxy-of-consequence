@@ -35,6 +35,13 @@ The system uses SQLAlchemy with a declarative base model approach. Key entities 
 - **Nemotron Routes** (`/routes/nemotron.py`): NVIDIA AI integration for NPC dialogue
 - **Quest Routes** (`/routes/quest.py`): Procedural quest generation
 - **Session Routes** (`/routes/session.py`): Session state management
+- **Advanced RPG Routes** (`/routes/advanced_rpg.py`): Real-time faction AI, procedural quests, multiplayer sessions, Force morality engine
+
+### Advanced RPG Services
+- **Faction AI Service** (`/services/faction_ai_service.py`): Intelligent faction turns with personality-driven responses
+- **Quest Engine** (`/services/quest_engine.py`): Procedural quest generation with branching narratives and player adaptation
+- **Session Manager** (`/services/session_manager.py`): Multiplayer session state with persistent world consequences
+- **Force Morality Engine** (`/services/force_morality_engine.py`): Force alignment tracking with narrative consequences and destiny threads
 
 ### Service Layer
 - **Auth Service**: Bearer token validation with fixed token "Abracadabra"
@@ -63,6 +70,13 @@ The system uses SQLAlchemy with a declarative base model approach. Key entities 
 - **Solution**: Added API key sanitization to strip quotes and whitespace 
 - **Result**: NVIDIA Nemotron API now fully operational with authentic Star Wars character responses
 - **Status**: All core RPG systems (Canvas, Faction AI, Quest Generation, Force Tracking, NPC Dialogue) confirmed working
+
+### Advanced RPG Mechanics Implementation
+- **Real-time Faction AI Turns**: Intelligent faction personalities with dynamic response systems
+- **Procedural Quest Generation**: Adaptive quest creation based on player history and galaxy state
+- **Multiplayer Session State**: Persistent world state with cross-player narrative consequences
+- **Force Morality Engine**: Comprehensive Force alignment tracking with destiny threads and narrative consequences
+- **Status**: Complete persistent world engine implementing core RPG creed - reactive NPCs, scalable threats, immersive narrative logic
 
 ## External Dependencies
 

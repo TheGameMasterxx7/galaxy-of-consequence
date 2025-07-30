@@ -1,6 +1,5 @@
 from flask import Blueprint, request, jsonify, Response
 from services.nvidia_service import query_nemotron_api
-from models import NPCInteraction
 from app import db
 import json
 import logging
@@ -48,6 +47,7 @@ def query_nemotron():
         
         # Log the interaction for persistence
         try:
+            from models import NPCInteraction
             interaction = NPCInteraction(
                 user=data.get('user', 'anonymous'),
                 npc_name=npc_name,
@@ -79,6 +79,7 @@ def get_npc_history():
         if not user or not npc_name:
             return jsonify({'error': 'Missing user or npc_name parameter'}), 400
         
+        from models import NPCInteraction
         interactions = NPCInteraction.query.filter_by(
             user=user,
             npc_name=npc_name

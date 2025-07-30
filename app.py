@@ -53,7 +53,7 @@ app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 # Import routes after app creation to avoid circular imports
 with app.app_context():
     import models
-    from routes import canvas, nemotron, faction, quest, session, force
+    from routes import canvas, nemotron, faction, quest, session, force, advanced_rpg
     
     # Register blueprints
     app.register_blueprint(canvas.bp)
@@ -62,6 +62,7 @@ with app.app_context():
     app.register_blueprint(quest.bp)
     app.register_blueprint(session.bp)
     app.register_blueprint(force.bp)
+    app.register_blueprint(advanced_rpg.bp)
     
     # Create all database tables
     db.create_all()
