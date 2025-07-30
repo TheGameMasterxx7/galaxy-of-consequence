@@ -1,8 +1,8 @@
-# Galaxy of Consequence - Star Wars RPG API
+# Galaxy of Consequence - Advanced RPG API
 
 ## Overview
 
-Galaxy of Consequence is a Flask-based REST API for a Star Wars RPG system that integrates with NVIDIA's Nemotron AI for immersive NPC dialogue generation. The system features persistent character management, faction dynamics, Force alignment tracking, and procedural quest generation with real-time canvas saving capabilities.
+Galaxy of Consequence is a Flask-based REST API for an advanced RPG system that integrates with NVIDIA's Nemotron AI for immersive NPC dialogue generation. The system features persistent character management, faction dynamics, Force alignment tracking, and procedural quest generation with real-time canvas saving capabilities.
 
 ## User Preferences
 

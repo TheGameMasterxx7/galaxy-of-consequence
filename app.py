@@ -45,7 +45,7 @@ swaggerui_blueprint = get_swaggerui_blueprint(
     SWAGGER_URL,
     API_URL,
     config={
-        'app_name': "Star Wars RPG HUD API"
+        'app_name': "Galaxy of Consequence API"
     }
 )
 app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
@@ -93,7 +93,7 @@ def index():
                     <div class="card">
                         <div class="card-body text-center">
                             <h1 class="card-title">🌌 Galaxy of Consequence</h1>
-                            <p class="card-text">Star Wars RPG API with NVIDIA Nemotron Integration</p>
+                            <p class="card-text">Advanced RPG Backend with NVIDIA Nemotron Integration</p>
                             <div class="mt-4">
                                 <a href="/docs" class="btn btn-primary me-2">API Documentation</a>
                                 <a href="/openapi.yaml" class="btn btn-secondary">OpenAPI Spec</a>

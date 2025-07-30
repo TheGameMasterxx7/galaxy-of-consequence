@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
-  title: Star Wars RPG HUD API
+  title: Galaxy of Consequence API
   version: 1.1.2
 servers:
-  - url: https://star-wars-rpg-dashboard.onrender.com
+  - url: https://galaxy-of-consequence.onrender.com
     description: Render-hosted Flask API
 
 paths:
