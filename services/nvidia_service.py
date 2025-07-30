@@ -35,7 +35,16 @@ def query_nemotron_api(system_message, user_message, model="nvidia/nemotron-mini
             return response.json()
         else:
             logging.error(f"NVIDIA API error: {response.status_code} - {response.text}")
-            return None
+            # Return a fallback response for demo purposes
+            return {
+                "id": "fallback-response",
+                "choices": [{
+                    "message": {
+                        "role": "assistant",
+                        "content": f"*[API Error - Using fallback response]* As {system_message.split('You are ')[1].split(',')[0] if 'You are ' in system_message else 'an NPC'}, I acknowledge your message: '{user_message}'. The Force flows through all things, connecting us to the galaxy's destiny."
+                    }
+                }]
+            }
             
     except requests.exceptions.RequestException as e:
         logging.error(f"Request error calling NVIDIA API: {str(e)}")
