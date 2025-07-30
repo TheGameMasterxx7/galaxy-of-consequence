@@ -1,0 +1,65 @@
+/* Custom styles for Galaxy of Consequence API */
+:root {
+    --star-gold: #FFD700;
+    --empire-red: #DC143C;
+    --rebel-orange: #FF8C00;
+    --space-blue: #1e3a8a;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.galaxy-header {
+    background: linear-gradient(45deg, var(--space-blue), var(--bs-dark));
+    color: var(--star-gold);
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.faction-empire {
+    border-left: 4px solid var(--empire-red);
+}
+
+.faction-rebel {
+    border-left: 4px solid var(--rebel-orange);
+}
+
+.faction-neutral {
+    border-left: 4px solid var(--bs-secondary);
+}
+
+.force-meter {
+    height: 20px;
+    background: linear-gradient(to right, 
+        var(--empire-red) 0%, 
+        var(--bs-secondary) 50%, 
+        var(--bs-info) 100%);
+    border-radius: 10px;
+}
+
+.api-status {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    z-index: 1000;
+}
+
+/* Swagger UI customizations */
+.swagger-ui .topbar {
+    background: var(--space-blue) !important;
+}
+
+.swagger-ui .info .title {
+    color: var(--star-gold) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .card {
+        margin-bottom: 15px;
+    }
+}
