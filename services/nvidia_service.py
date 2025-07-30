@@ -35,13 +35,33 @@ def query_nemotron_api(system_message, user_message, model="nvidia/nemotron-mini
             return response.json()
         else:
             logging.error(f"NVIDIA API error: {response.status_code} - {response.text}")
-            # Return a fallback response for demo purposes
+            # Return a dynamic Star Wars RPG fallback response
+            npc_name = system_message.split('You are ')[1].split(',')[0] if 'You are ' in system_message else 'NPC'
+            
+            # Create contextual Star Wars responses based on NPC type and message
+            fallback_responses = {
+                'jedi': f"*Speaks with quiet wisdom* The Force guides us all, young one. Your question about '{user_message}' shows you seek understanding. Remember - patience and meditation will reveal the answers you seek.",
+                'sith': f"*Eyes gleaming with dark power* You dare question me about '{user_message}'? Power is the only truth that matters in this galaxy. Weakness will be your downfall.",
+                'imperial': f"*Adjusts uniform with military precision* Citizen, your inquiry regarding '{user_message}' has been noted. The Empire maintains order through strength and discipline.",
+                'rebel': f"*Leans in conspiratorially* What you ask about '{user_message}' touches on dangerous matters. The fight for freedom requires sacrifice and courage.",
+                'smuggler': f"*Grins slyly* Listen, friend, about '{user_message}' - in my line of work, you learn to ask few questions and keep your mouth shut. Credits talk louder than words.",
+                'droid': f"*Mechanical voice* QUERY PROCESSED: '{user_message}'. RESPONSE: My programming indicates this requires further analysis. Probability of success: 73.6%.",
+                'civilian': f"*Nervous glance around* I don't know much about '{user_message}', stranger. These are dangerous times. Best to keep your head down and stay out of trouble."
+            }
+            
+            # Determine NPC type from system message
+            npc_type = 'civilian'
+            for key in fallback_responses.keys():
+                if key in system_message.lower():
+                    npc_type = key
+                    break
+            
             return {
-                "id": "fallback-response",
+                "id": "galaxy-fallback",
                 "choices": [{
                     "message": {
                         "role": "assistant",
-                        "content": f"*[API Error - Using fallback response]* As {system_message.split('You are ')[1].split(',')[0] if 'You are ' in system_message else 'an NPC'}, I acknowledge your message: '{user_message}'. The Force flows through all things, connecting us to the galaxy's destiny."
+                        "content": fallback_responses[npc_type]
                     }
                 }]
             }
