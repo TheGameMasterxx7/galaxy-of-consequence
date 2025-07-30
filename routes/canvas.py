@@ -9,7 +9,6 @@ import logging
 bp = Blueprint('canvas', __name__)
 
 @bp.route('/save_canvas', methods=['POST'])
-@jwt_required(optional=True)
 def save_canvas():
     """Save any RPG canvas type (Force HUD, Summary, etc.)"""
     try:

@@ -4,6 +4,7 @@ from models import QuestLog, FactionState
 from services.galaxy_service import generate_procedural_quest
 import json
 import logging
+from datetime import datetime
 
 bp = Blueprint('quest', __name__)
 
@@ -153,6 +154,7 @@ def add_quest_objective():
             return jsonify({'error': 'Quest not found'}), 404
         
         objectives = json.loads(quest.objectives) if quest.objectives else []
+        from datetime import datetime
         objectives.append({
             'description': objective,
             'completed': False,
