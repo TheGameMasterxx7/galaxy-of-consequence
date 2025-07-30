@@ -1,114 +1,109 @@
-import requests
 import os
 import logging
 import json
+from openai import OpenAI
 
-NVIDIA_API_URL = "https://integrate.api.nvidia.com/v1/chat/completions"
-NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "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")
+NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY")
+
+# Initialize OpenAI client with NVIDIA endpoint
+nvidia_client = OpenAI(
+    base_url="https://integrate.api.nvidia.com/v1",
+    api_key=NVIDIA_API_KEY
+) if NVIDIA_API_KEY else None
 
 def query_nemotron_api(system_message, user_message, model="nvidia/nemotron-mini-4b-instruct"):
     """
-    Query NVIDIA Nemotron API for NPC dialogue generation
+    Query NVIDIA Nemotron API for NPC dialogue generation using OpenAI client
     """
     try:
-        headers = {
-            "Authorization": f"Bearer {NVIDIA_API_KEY}",
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        }
+        if not nvidia_client:
+            logging.error("NVIDIA client not initialized - API key missing")
+            return get_fallback_response(system_message, user_message)
         
-        payload = {
-            "model": model,
-            "messages": [
+        completion = nvidia_client.chat.completions.create(
+            model=model,
+            messages=[
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message}
             ],
-            "temperature": 0.2,
-            "top_p": 0.7,
-            "max_tokens": 1024,
-            "stream": False  # Set to False for easier handling, can be made configurable
+            temperature=0.2,
+            top_p=0.7,
+            max_tokens=1024,
+            stream=False
+        )
+        
+        # Convert OpenAI response format to our expected format
+        return {
+            "id": completion.id,
+            "choices": [{
+                "message": {
+                    "role": completion.choices[0].message.role,
+                    "content": completion.choices[0].message.content
+                }
+            }]
         }
         
-        response = requests.post(NVIDIA_API_URL, headers=headers, json=payload, timeout=30)
-        
-        if response.status_code == 200:
-            return response.json()
-        else:
-            logging.error(f"NVIDIA API error: {response.status_code} - {response.text}")
-            # Return a dynamic Star Wars RPG fallback response
-            npc_name = system_message.split('You are ')[1].split(',')[0] if 'You are ' in system_message else 'NPC'
-            
-            # Create contextual Star Wars responses based on NPC type and message
-            fallback_responses = {
-                'jedi': f"*Speaks with quiet wisdom* The Force guides us all, young one. Your question about '{user_message}' shows you seek understanding. Remember - patience and meditation will reveal the answers you seek.",
-                'sith': f"*Eyes gleaming with dark power* You dare question me about '{user_message}'? Power is the only truth that matters in this galaxy. Weakness will be your downfall.",
-                'imperial': f"*Adjusts uniform with military precision* Citizen, your inquiry regarding '{user_message}' has been noted. The Empire maintains order through strength and discipline.",
-                'rebel': f"*Leans in conspiratorially* What you ask about '{user_message}' touches on dangerous matters. The fight for freedom requires sacrifice and courage.",
-                'smuggler': f"*Grins slyly* Listen, friend, about '{user_message}' - in my line of work, you learn to ask few questions and keep your mouth shut. Credits talk louder than words.",
-                'droid': f"*Mechanical voice* QUERY PROCESSED: '{user_message}'. RESPONSE: My programming indicates this requires further analysis. Probability of success: 73.6%.",
-                'civilian': f"*Nervous glance around* I don't know much about '{user_message}', stranger. These are dangerous times. Best to keep your head down and stay out of trouble."
-            }
-            
-            # Determine NPC type from system message
-            npc_type = 'civilian'
-            for key in fallback_responses.keys():
-                if key in system_message.lower():
-                    npc_type = key
-                    break
-            
-            return {
-                "id": "galaxy-fallback",
-                "choices": [{
-                    "message": {
-                        "role": "assistant",
-                        "content": fallback_responses[npc_type]
-                    }
-                }]
-            }
-            
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Request error calling NVIDIA API: {str(e)}")
-        return None
     except Exception as e:
-        logging.error(f"Unexpected error calling NVIDIA API: {str(e)}")
-        return None
+        logging.error(f"Error calling NVIDIA API: {str(e)}")
+        return get_fallback_response(system_message, user_message)
+
+def get_fallback_response(system_message, user_message):
+    """
+    Generate Star Wars RPG fallback responses when NVIDIA API is unavailable
+    """
+    # Create contextual Star Wars responses based on NPC type and message
+    fallback_responses = {
+        'jedi': f"*Speaks with quiet wisdom* The Force guides us all, young one. Your question about '{user_message}' shows you seek understanding. Remember - patience and meditation will reveal the answers you seek.",
+        'sith': f"*Eyes gleaming with dark power* You dare question me about '{user_message}'? Power is the only truth that matters in this galaxy. Weakness will be your downfall.",
+        'imperial': f"*Adjusts uniform with military precision* Citizen, your inquiry regarding '{user_message}' has been noted. The Empire maintains order through strength and discipline.",
+        'rebel': f"*Leans in conspiratorially* What you ask about '{user_message}' touches on dangerous matters. The fight for freedom requires sacrifice and courage.",
+        'smuggler': f"*Grins slyly* Listen, friend, about '{user_message}' - in my line of work, you learn to ask few questions and keep your mouth shut. Credits talk louder than words.",
+        'droid': f"*Mechanical voice* QUERY PROCESSED: '{user_message}'. RESPONSE: My programming indicates this requires further analysis. Probability of success: 73.6%.",
+        'civilian': f"*Nervous glance around* I don't know much about '{user_message}', stranger. These are dangerous times. Best to keep your head down and stay out of trouble."
+    }
+    
+    # Determine NPC type from system message
+    npc_type = 'civilian'
+    for key in fallback_responses.keys():
+        if key in system_message.lower():
+            npc_type = key
+            break
+    
+    return {
+        "id": "galaxy-fallback",
+        "choices": [{
+            "message": {
+                "role": "assistant",
+                "content": fallback_responses[npc_type]
+            }
+        }]
+    }
 
 def query_nemotron_streaming(system_message, user_message, model="nvidia/nemotron-mini-4b-instruct"):
     """
-    Query NVIDIA Nemotron API with streaming response
+    Query NVIDIA Nemotron API with streaming response using OpenAI client
     """
     try:
-        headers = {
-            "Authorization": f"Bearer {NVIDIA_API_KEY}",
-            "Accept": "application/json",
-            "Content-Type": "application/json"
-        }
+        if not nvidia_client:
+            logging.error("NVIDIA client not initialized - API key missing")
+            return None
         
-        payload = {
-            "model": model,
-            "messages": [
+        stream = nvidia_client.chat.completions.create(
+            model=model,
+            messages=[
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message}
             ],
-            "temperature": 0.2,
-            "top_p": 0.7,
-            "max_tokens": 1024,
-            "stream": True
-        }
+            temperature=0.2,
+            top_p=0.7,
+            max_tokens=1024,
+            stream=True
+        )
         
-        response = requests.post(NVIDIA_API_URL, headers=headers, json=payload, stream=True, timeout=30)
+        return stream
         
-        if response.status_code == 200:
-            return response
-        else:
-            logging.error(f"NVIDIA API streaming error: {response.status_code} - {response.text}")
-            return None
-            
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Request error calling NVIDIA streaming API: {str(e)}")
-        return None
     except Exception as e:
-        logging.error(f"Unexpected error calling NVIDIA streaming API: {str(e)}")
+        logging.error(f"Error calling NVIDIA streaming API: {str(e)}")
         return None
 
 def generate_npc_context(npc_name, npc_type, location="Unknown", faction_affiliation="Neutral"):
@@ -142,19 +137,23 @@ def generate_npc_context(npc_name, npc_type, location="Unknown", faction_affilia
 
 def test_nvidia_connection():
     """
-    Test connection to NVIDIA API
+    Test connection to NVIDIA API using OpenAI client
     """
     try:
+        if not nvidia_client:
+            logging.error("NVIDIA client not initialized - API key missing")
+            return False
+            
         response = query_nemotron_api(
             "You are a test NPC in the Star Wars universe.",
             "Hello, can you hear me?"
         )
         
-        if response:
+        if response and response.get("id") != "galaxy-fallback":
             logging.info("NVIDIA API connection successful")
             return True
         else:
-            logging.error("NVIDIA API connection failed")
+            logging.warning("NVIDIA API connection failed - using fallback responses")
             return False
             
     except Exception as e:

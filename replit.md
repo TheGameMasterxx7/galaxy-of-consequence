@@ -60,8 +60,9 @@ The system uses SQLAlchemy with a declarative base model approach. Key entities 
 
 ### Core Dependencies
 - **Flask**: Web framework with SQLAlchemy, JWT, CORS, Swagger UI
-- **NVIDIA Nemotron API**: AI dialogue generation (`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`)
-- **SQLite/PostgreSQL**: Database backend via `DATABASE_URL` environment variable
+- **OpenAI Client**: For NVIDIA API integration with proper authentication
+- **NVIDIA Nemotron API**: AI dialogue generation (configured as environment variable)
+- **PostgreSQL**: Database backend via `DATABASE_URL` environment variable
 
 ### Environment Variables
 - `SESSION_SECRET`: Flask session key (default: "galaxy-of-consequence-secret-key")
