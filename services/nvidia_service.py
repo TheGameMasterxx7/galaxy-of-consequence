@@ -1,50 +1,55 @@
+import requests
 import os
 import logging
 import json
-from openai import OpenAI
 
+NVIDIA_API_URL = "https://integrate.api.nvidia.com/v1/chat/completions"
 NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY")
 
-# Initialize OpenAI client with NVIDIA endpoint
-nvidia_client = OpenAI(
-    base_url="https://integrate.api.nvidia.com/v1",
-    api_key=NVIDIA_API_KEY
-) if NVIDIA_API_KEY else None
+# Remove any quotes that might be around the API key
+if NVIDIA_API_KEY:
+    NVIDIA_API_KEY = NVIDIA_API_KEY.strip().strip('"').strip("'")
 
 def query_nemotron_api(system_message, user_message, model="nvidia/nemotron-mini-4b-instruct"):
     """
-    Query NVIDIA Nemotron API for NPC dialogue generation using OpenAI client
+    Query NVIDIA Nemotron API for NPC dialogue generation using direct requests
     """
     try:
-        if not nvidia_client:
-            logging.error("NVIDIA client not initialized - API key missing")
+        if not NVIDIA_API_KEY:
+            logging.error("NVIDIA API key missing")
             return get_fallback_response(system_message, user_message)
         
-        completion = nvidia_client.chat.completions.create(
-            model=model,
-            messages=[
+        headers = {
+            "Authorization": f"Bearer {NVIDIA_API_KEY}",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": model,
+            "messages": [
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message}
             ],
-            temperature=0.2,
-            top_p=0.7,
-            max_tokens=1024,
-            stream=False
-        )
-        
-        # Convert OpenAI response format to our expected format
-        return {
-            "id": completion.id,
-            "choices": [{
-                "message": {
-                    "role": completion.choices[0].message.role,
-                    "content": completion.choices[0].message.content
-                }
-            }]
+            "temperature": 0.2,
+            "top_p": 0.7,
+            "max_tokens": 1024,
+            "stream": False
         }
         
+        response = requests.post(NVIDIA_API_URL, headers=headers, json=payload, timeout=30)
+        
+        if response.status_code == 200:
+            return response.json()
+        else:
+            logging.error(f"NVIDIA API error: {response.status_code} - {response.text}")
+            return get_fallback_response(system_message, user_message)
+        
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Request error calling NVIDIA API: {str(e)}")
+        return get_fallback_response(system_message, user_message)
     except Exception as e:
-        logging.error(f"Error calling NVIDIA API: {str(e)}")
+        logging.error(f"Unexpected error calling NVIDIA API: {str(e)}")
         return get_fallback_response(system_message, user_message)
 
 def get_fallback_response(system_message, user_message):
@@ -81,29 +86,44 @@ def get_fallback_response(system_message, user_message):
 
 def query_nemotron_streaming(system_message, user_message, model="nvidia/nemotron-mini-4b-instruct"):
     """
-    Query NVIDIA Nemotron API with streaming response using OpenAI client
+    Query NVIDIA Nemotron API with streaming response using requests
     """
     try:
-        if not nvidia_client:
-            logging.error("NVIDIA client not initialized - API key missing")
+        if not NVIDIA_API_KEY:
+            logging.error("NVIDIA API key missing")
             return None
         
-        stream = nvidia_client.chat.completions.create(
-            model=model,
-            messages=[
+        headers = {
+            "Authorization": f"Bearer {NVIDIA_API_KEY}",
+            "Accept": "application/json",
+            "Content-Type": "application/json"
+        }
+        
+        payload = {
+            "model": model,
+            "messages": [
                 {"role": "system", "content": system_message},
                 {"role": "user", "content": user_message}
             ],
-            temperature=0.2,
-            top_p=0.7,
-            max_tokens=1024,
-            stream=True
-        )
+            "temperature": 0.2,
+            "top_p": 0.7,
+            "max_tokens": 1024,
+            "stream": True
+        }
         
-        return stream
+        response = requests.post(NVIDIA_API_URL, headers=headers, json=payload, stream=True, timeout=30)
         
+        if response.status_code == 200:
+            return response
+        else:
+            logging.error(f"NVIDIA streaming API error: {response.status_code} - {response.text}")
+            return None
+        
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Request error calling NVIDIA streaming API: {str(e)}")
+        return None
     except Exception as e:
-        logging.error(f"Error calling NVIDIA streaming API: {str(e)}")
+        logging.error(f"Unexpected error calling NVIDIA streaming API: {str(e)}")
         return None
 
 def generate_npc_context(npc_name, npc_type, location="Unknown", faction_affiliation="Neutral"):
@@ -137,11 +157,11 @@ def generate_npc_context(npc_name, npc_type, location="Unknown", faction_affilia
 
 def test_nvidia_connection():
     """
-    Test connection to NVIDIA API using OpenAI client
+    Test connection to NVIDIA API using direct requests
     """
     try:
-        if not nvidia_client:
-            logging.error("NVIDIA client not initialized - API key missing")
+        if not NVIDIA_API_KEY:
+            logging.error("NVIDIA API key missing")
             return False
             
         response = query_nemotron_api(

@@ -53,8 +53,16 @@ The system uses SQLAlchemy with a declarative base model approach. Key entities 
 2. **Canvas Operations**: Frontend saves/loads RPG canvas data with metadata
 3. **Faction Simulation**: Real-time faction AI responses based on player actions
 4. **Force Tracking**: Alignment shifts tracked and persisted per character
-5. **AI Dialogue**: NVIDIA Nemotron generates lore-accurate NPC responses
+5. **AI Dialogue**: NVIDIA Nemotron generates lore-accurate NPC responses ✅ OPERATIONAL
 6. **Quest Generation**: Procedural quests based on faction states and player history
+
+## Recent Changes (July 30, 2025)
+
+### NVIDIA Integration Successfully Resolved
+- **Issue**: API key authentication was failing due to environment variable containing quotes
+- **Solution**: Added API key sanitization to strip quotes and whitespace 
+- **Result**: NVIDIA Nemotron API now fully operational with authentic Star Wars character responses
+- **Status**: All core RPG systems (Canvas, Faction AI, Quest Generation, Force Tracking, NPC Dialogue) confirmed working
 
 ## External Dependencies
 
